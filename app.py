@@ -90,7 +90,7 @@ def cancel_inference():
 # Custom CSS for a fancy look
 custom_css = """
 #main-container {
-    background-color: #cdebc5;
+    background: #cdebc5;
     font-family: 'Comic Neue', sans-serif;
 }
 
@@ -98,7 +98,7 @@ custom_css = """
     max-width: 700px;
     margin: 0 auto;
     padding: 20px;
-    background: light blue;
+    background: #cdebc5;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
