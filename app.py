@@ -142,11 +142,12 @@ with gr.Blocks(css=custom_css) as demo:
     with gr.Row():
         level = gr.Dropdown(choices=["elementary school", "middle school", "high school", "college"])
 
-    system_message = f"You are a friendly Chatbot. Please give answers at a {level} level"
+    system_mess = f"You are a friendly Chatbot. Please give answers at a {level} level"
     
     with gr.Row():
         
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
+        system_message = gr.Textbox(value=system_mess)
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
