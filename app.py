@@ -16,7 +16,7 @@ def respond(
     history: list[tuple[str, str]],
     system_message="You are a friendly Chatbot.",
     max_tokens=512,
-    temperature=0.7,
+    temperature=1.5,
     top_p=0.95,
     use_local_model=False,
 ):
@@ -143,10 +143,10 @@ with gr.Blocks(css=custom_css) as demo:
     
     with gr.Row():
         system_message = gr.Dropdown(
-            choices=["You are a friendly Chatbot that responds at an elementary school level.", 
-                     "You are a friendly middle school Chatbot.", "You are a friendly high school Chatbot.", 
-                     "You are a friendly college Chatbot."],
-            value="You are a friendly Chatbot.",
+            choices=["You are a friendly Chatbot that responds with the vocabulary of the seven year old.", 
+                     "You are a friendly Chatbot. Please respond at a level that middle schoolers can understand", 
+                     "You are a friendly high school Chatbot who responds at a level the average person can understand.", 
+                     "You are a friendly Chatbot that uses a very advanced, college-level vocabulary in your responses."],
             label="System message",
             interactive=True
         )
@@ -157,7 +157,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
-        temperature = gr.Slider(minimum=0.1, maximum=4.0, value=0.7, step=0.1, label="Temperature")
+        temperature = gr.Slider(minimum=0.5, maximum=4.0, value=0.7, step=0.1, label="Temperature")
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
 
     chat_history = gr.Chatbot(label="Chat")
