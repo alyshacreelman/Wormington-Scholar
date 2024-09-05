@@ -97,14 +97,14 @@ custom_css = """
     max-width: 700px;
     margin: 0 auto;
     padding: 20px;
-    background: blue;
+    background: light blue;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
 
 .gr-button {
     background-color: #a7e0fd;
-    color: blue;
+    color: light blue;
     border: none;
     border-radius: 5px;
     padding: 10px 20px;
