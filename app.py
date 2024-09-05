@@ -136,8 +136,9 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🌟 Fancy AI Chatbot 🌟</h1>")
-    gr.Markdown("Interact with the AI chatbot using customizable settings below.")
+    gr.Markdown("<h1 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h1>")
+    gr.Markdown("<h3 style='text-align: center;'>🐛</h3>"))
+    gr.Markdown("Interact with Wormington Scholar by selecting the appropriate level below.")
 
 
     
@@ -157,7 +158,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
-        temperature = gr.Slider(minimum=0.5, maximum=4.0, value=0.7, step=0.1, label="Temperature")
+        temperature = gr.Slider(minimum=0.5, maximum=4.0, value=1.2, step=0.1, label="Temperature")
         top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.95, step=0.05, label="Top-p (nucleus sampling)")
 
     chat_history = gr.Chatbot(label="Chat")
