@@ -138,7 +138,10 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Interact with the AI chatbot using customizable settings below.")
 
     with gr.Row():
-        system_message = gr.Textbox(value="You are a friendly Chatbot.", label="System message", interactive=True)
+        level = gr.Dropdown(choices=["elementary school", "middle school", "high school", "college"])
+    
+    with gr.Row():
+        system_message = gr.Textbox(value=f"You are a friendly Chatbot. Please give answers at a {level} level", label="System message", interactive=True)
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
