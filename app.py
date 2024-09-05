@@ -89,8 +89,8 @@ def cancel_inference():
 
 # Custom CSS for a fancy look
 custom_css = """
-#main-container {
-    background-color: #a7e0fd;
+main-container {
+    background-color: #CDEBC5;
     font-family: 'Comic Neue', sans-serif;
 }
 
@@ -136,8 +136,8 @@ custom_css = """
 
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
-    gr.Markdown("<h1 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h1>")
-    gr.Markdown("<h3 style='text-align: center;'>🐛</h3>")
+    gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
+    gr.Markdown("<h1 style='text-align: center;'>🐛</h1>")
     gr.Markdown("Interact with Wormington Scholar by selecting the appropriate level below.")
 
 
