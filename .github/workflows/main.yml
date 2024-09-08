@@ -14,8 +14,10 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-      - name: Force reset local branch to match Hugging Face
-        run: git reset --hard https://MLOps-J-A-E:$HF_TOKEN@huggingface.co/spaces/MLOps-J-A-E/J-A-E-Chatbot main
+      - name: Fetch latest changes from Hugging Face
+        run: git fetch https://MLOps-J-A-E:$HF_TOKEN@huggingface.co/spaces/MLOps-J-A-E/J-A-E-Chatbot main
+      - name: Reset local branch to match Hugging Face
+        run: git reset --hard FETCH_HEAD
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
