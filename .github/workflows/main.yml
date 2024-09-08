@@ -14,6 +14,8 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
+      - name: Pull latest changes from Hugging Face
+        run: git pull https://MLOps-J-A-E:$HF_TOKEN@huggingface.co/spaces/MLOps-J-A-E/J-A-E-Chatbot main
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
