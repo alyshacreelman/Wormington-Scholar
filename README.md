@@ -1,5 +1,5 @@
 ---
-title: CS553_Example
+title: Wormington Chatbot Scholar!!!
 emoji: 💬
 colorFrom: yellow
 colorTo: purple
