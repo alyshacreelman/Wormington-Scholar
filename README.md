@@ -1,5 +1,5 @@
 ---
-title: Wormington Chatbot Scholar!!! Success? Yay!!!
+title: Wormington Chatbot Scholar!!! Success? Yay!!! Now from HF end
 emoji: 💬
 colorFrom: yellow
 colorTo: purple
