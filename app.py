@@ -10,7 +10,6 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
-# Define responses
 def respond(
     message,
     history: list[tuple[str, str]],
@@ -139,10 +138,11 @@ with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("Interact with Wormington Scholar 🐛 by selecting the appropriate level below.")
 
     with gr.Row():
-        gr.Button("Elementary School", elem_id="elementary-btn").click(lambda: "You are an elementary school teacher. Please respond with the vocabulary of the seven year old.", None, None, _js="elementary-btn")
-        gr.Button("Middle School", elem_id="middle-btn").click(lambda: "You are a middle school teacher. Please respond at a level that middle schoolers can understand", None, None, _js="middle-btn")
-        gr.Button("High School", elem_id="highschool-btn").click(lambda: "You are a high school teacher. Please respond at a level that a high school student can understand.", None, None, _js="highschool-btn")
-        gr.Button("College", elem_id="college-btn").click(lambda: "You are a college Professor. Please respond with very advanced, college-level vocabulary.", None, None, _js="college-btn")
+        system_message = gr.State(value="You are a friendly Chatbot.")
+        gr.Button("Elementary School").click(lambda: system_message.update("You are an elementary school teacher. Please respond with the vocabulary of the seven year old."))
+        gr.Button("Middle School").click(lambda: system_message.update("You are a middle school teacher. Please respond at a level that middle schoolers can understand"))
+        gr.Button("High School").click(lambda: system_message.update("You are a high school teacher. Please respond at a level that a high school student can understand."))
+        gr.Button("College").click(lambda: system_message.update("You are a college Professor. Please respond with very advanced, college-level vocabulary."))
 
     with gr.Row():
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
