@@ -10,7 +10,7 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
-
+# Define responses
 def respond(
     message,
     history: list[tuple[str, str]],
@@ -28,7 +28,7 @@ def respond(
         history = []
 
     if use_local_model:
-        # local inference 
+        # Local inference
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -54,7 +54,7 @@ def respond(
             yield history + [(message, response)]  # Yield history + new response
 
     else:
-        # API-based inference 
+        # API-based inference
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -81,7 +81,6 @@ def respond(
             token = message_chunk.choices[0].delta.content
             response += token
             yield history + [(message, response)]  # Yield history + new response
-
 
 def cancel_inference():
     global stop_inference
@@ -133,29 +132,21 @@ custom_css = """
 }
 """
 
-
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
     gr.Markdown("<h1 style='text-align: center;'>🐛</h1>")
     gr.Markdown("Interact with Wormington Scholar 🐛 by selecting the appropriate level below.")
 
-
-    
     with gr.Row():
-        system_message = gr.Dropdown(
-            choices=["You are a friendly Chatbot that responds with the vocabulary of the seven year old.", 
-                     "You are a friendly Chatbot. Please respond at a level that middle schoolers can understand", 
-                     "You are a friendly high school Chatbot who responds at a level the average person can understand.", 
-                     "You are a friendly Chatbot that uses a very advanced, college-level vocabulary in your responses."],
-            label="System message",
-            interactive=True
-        )
+        gr.Button("Elementary School", elem_id="elementary-btn").click(lambda: "You are an elementary school teacher. Please respond with the vocabulary of the seven year old.", None, None, _js="elementary-btn")
+        gr.Button("Middle School", elem_id="middle-btn").click(lambda: "You are a middle school teacher. Please respond at a level that middle schoolers can understand", None, None, _js="middle-btn")
+        gr.Button("High School", elem_id="highschool-btn").click(lambda: "You are a high school teacher. Please respond at a level that a high school student can understand.", None, None, _js="highschool-btn")
+        gr.Button("College", elem_id="college-btn").click(lambda: "You are a college Professor. Please respond with very advanced, college-level vocabulary.", None, None, _js="college-btn")
 
-    with gr.Row():  
+    with gr.Row():
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
     
-
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.5, maximum=4.0, value=1.2, step=0.1, label="Temperature")
@@ -172,8 +163,5 @@ with gr.Blocks(css=custom_css) as demo:
 
     cancel_button.click(cancel_inference)
 
-
-
 if __name__ == "__main__":
     demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
-
