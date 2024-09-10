@@ -10,6 +10,7 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 # Global flag to handle cancellation
 stop_inference = False
 
+
 def respond(
     message,
     history: list[tuple[str, str]],
@@ -27,7 +28,7 @@ def respond(
         history = []
 
     if use_local_model:
-        # Local inference
+        # local inference 
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -53,7 +54,7 @@ def respond(
             yield history + [(message, response)]  # Yield history + new response
 
     else:
-        # API-based inference
+        # API-based inference 
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -81,6 +82,7 @@ def respond(
             response += token
             yield history + [(message, response)]  # Yield history + new response
 
+
 def cancel_inference():
     global stop_inference
     stop_inference = True
@@ -91,7 +93,6 @@ custom_css = """
     background: #cdebc5;
     font-family: 'Comic Neue', sans-serif;
 }
-
 .gradio-container {
     max-width: 700px;
     margin: 0 auto;
@@ -100,7 +101,6 @@ custom_css = """
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 10px;
 }
-
 .gr-button {
     background-color: #a7e0fd;
     color: light blue;
@@ -110,19 +110,15 @@ custom_css = """
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
 .gr-button:hover {
     background-color: #45a049;
 }
-
 .gr-slider input {
     color: #4CAF50;
 }
-
 .gr-chat {
     font-size: 16px;
 }
-
 #title {
     text-align: center;
     font-size: 2em;
@@ -131,22 +127,29 @@ custom_css = """
 }
 """
 
+
 # Define the interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
     gr.Markdown("<h1 style='text-align: center;'>🐛</h1>")
     gr.Markdown("Interact with Wormington Scholar 🐛 by selecting the appropriate level below.")
 
-    with gr.Row():
-        system_message = gr.State(value="You are a friendly Chatbot.")
-        gr.Button("Elementary School").click(lambda: system_message.update("You are an elementary school teacher. Please respond with the vocabulary of the seven year old."))
-        gr.Button("Middle School").click(lambda: system_message.update("You are a middle school teacher. Please respond at a level that middle schoolers can understand"))
-        gr.Button("High School").click(lambda: system_message.update("You are a high school teacher. Please respond at a level that a high school student can understand."))
-        gr.Button("College").click(lambda: system_message.update("You are a college Professor. Please respond with very advanced, college-level vocabulary."))
 
+    
     with gr.Row():
+        system_message = gr.Dropdown(
+            choices=["You are a friendly Chatbot that responds with the vocabulary of the seven year old.", 
+                     "You are a friendly Chatbot. Please respond at a level that middle schoolers can understand", 
+                     "You are a friendly high school Chatbot who responds at a level the average person can understand.", 
+                     "You are a friendly Chatbot that uses a very advanced, college-level vocabulary in your responses."],
+            label="System message",
+            interactive=True
+        )
+
+    with gr.Row():  
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
     
+
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
         temperature = gr.Slider(minimum=0.5, maximum=4.0, value=1.2, step=0.1, label="Temperature")
@@ -163,5 +166,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     cancel_button.click(cancel_inference)
 
+
+
 if __name__ == "__main__":
-    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces
+    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces 
