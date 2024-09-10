@@ -1,5 +1,5 @@
 ---
-title: Wormington Chatbot Scholar!!! Success? Yay!!!
+title: Wormington Chatbot Scholar!!! Success? Yay!!! Making change on github
 emoji: 💬
 colorFrom: yellow
 colorTo: purple
