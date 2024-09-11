@@ -28,6 +28,7 @@ jobs:
           pip install fastapi==0.112.4
           pip install gradio==3.23.0
           pip install transformers torch huggingface_hub
+          pip install accelerate
 
       # Run unit tests with pytest
       - name: Run tests
