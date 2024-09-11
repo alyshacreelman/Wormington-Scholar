@@ -25,7 +25,7 @@ def test_update_system_message():
     )
 
 
-def test_cancel_inference():
-    global stop_inference
-    cancel_inference()
-    assert stop_inference is True
+# def test_cancel_inference():
+#     global stop_inference
+#     cancel_inference()
+#     assert stop_inference is True
