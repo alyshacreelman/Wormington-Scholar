@@ -127,26 +127,45 @@ custom_css = """
     margin-bottom: 20px;
     color: #a7e0fd;
 }
+#school_ai_image {
+    width: 150px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
 """
 
+# Define system messages for each level
+def update_system_message(level):
+    if level == "Elementary School":
+        return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from elementary school students. Please respond with the vocabulary that a seven-year-old can understand."
+    elif level == "Middle School":
+        return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from middle school students. Please respond at a level that middle schoolers can understand."
+    elif level == "High School":
+        return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from high school students. Please respond at a level that a high schooler can understand."
+    elif level == "College":
+        return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from college students. Please respond using very advanced, college-level vocabulary."
 
-# Define the interface
+# Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Markdown("<h1 style='text-align: center;'>🐛</h1>")
-    gr.Markdown("Interact with Wormington Scholar 🐛 by selecting the appropriate level below.")
+    gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
+    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.")
 
-
-    
     with gr.Row():
-        system_message = gr.Dropdown(
-            choices=["You are a friendly Chatbot that responds with the vocabulary of the seven year old.", 
-                     "You are a friendly Chatbot. Please respond at a level that middle schoolers can understand", 
-                     "You are a friendly high school Chatbot who responds at a level the average person can understand.", 
-                     "You are a friendly Chatbot that uses a very advanced, college-level vocabulary in your responses."],
-            label="System message",
-            interactive=True
-        )
+        elementary_button = gr.Button("Elementary School", elem_id="elementary", variant="primary")
+        middle_button = gr.Button("Middle School", elem_id="middle", variant="primary")
+        high_button = gr.Button("High School", elem_id="high", variant="primary")
+        college_button = gr.Button("College", elem_id="college", variant="primary")
+
+    # Display area for the selected system message
+    system_message_display = gr.Textbox(label="System Message", value="", interactive=False)
+
+    # Update the system message when a button is clicked
+    elementary_button.click(fn=lambda: update_system_message("Elementary School"), inputs=None, outputs=system_message_display)
+    middle_button.click(fn=lambda: update_system_message("Middle School"), inputs=None, outputs=system_message_display)
+    high_button.click(fn=lambda: update_system_message("High School"), inputs=None, outputs=system_message_display)
+    college_button.click(fn=lambda: update_system_message("College"), inputs=None, outputs=system_message_display)
 
     with gr.Row():  
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
@@ -159,12 +178,12 @@ with gr.Blocks(css=custom_css) as demo:
 
     chat_history = gr.Chatbot(label="Chat")
 
-    user_input = gr.Textbox(show_label=False, placeholder="Type your message here...")
+    user_input = gr.Textbox(show_label=False, placeholder="Wormington would love to answer your questions. Type them here:")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message_display, max_tokens, temperature, top_p, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
