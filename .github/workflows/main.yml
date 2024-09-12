@@ -47,4 +47,4 @@ jobs:
       - name: Push to hub
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push https://huggingface.co/spaces/MLOps-J-A-E/Wormington-Scholar-Chatbot
+        run: git push https://MLOps-J-A-E:$HF_TOKEN@huggingface.co/spaces/MLOps-J-A-E/Wormington-Scholar-Chatbot main
