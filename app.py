@@ -4,11 +4,14 @@ import torch
 from transformers import pipeline
 import os
 
+# Inference client setup with token from environment
 token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta", token=token)
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
+# Global flag to handle cancellation
 stop_inference = False
+
 
 def respond(
     message,
@@ -20,12 +23,14 @@ def respond(
     use_local_model=False,
 ):
     global stop_inference
-    stop_inference = False
+    stop_inference = False  # Reset cancellation flag
 
+    # Initialize history if it's None
     if history is None:
         history = []
 
     if use_local_model:
+        # local inference 
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -48,9 +53,10 @@ def respond(
                 return
             token = output['generated_text'][-1]['content']
             response += token
-            yield history + [(message, response)]
+            yield history + [(message, response)]  # Yield history + new response
 
     else:
+        # API-based inference 
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -76,12 +82,14 @@ def respond(
                 break
             token = message_chunk.choices[0].delta.content
             response += token
-            yield history + [(message, response)]
+            yield history + [(message, response)]  # Yield history + new response
+
 
 def cancel_inference():
     global stop_inference
     stop_inference = True
 
+# Custom CSS for a fancy look
 custom_css = """
 #main-container {
     background: #cdebc5;
@@ -127,6 +135,7 @@ custom_css = """
 }
 """
 
+# Define system messages for each level
 def update_system_message(level):
     if level == "Elementary School":
         return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from elementary school students. Please respond with the vocabulary that a seven-year-old can understand."
@@ -137,6 +146,7 @@ def update_system_message(level):
     elif level == "College":
         return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from college students. Please respond using very advanced, college-level vocabulary."
 
+# Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
     gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
@@ -148,8 +158,10 @@ with gr.Blocks(css=custom_css) as demo:
         high_button = gr.Button("High School", elem_id="high", variant="primary")
         college_button = gr.Button("College", elem_id="college", variant="primary")
 
+    # Display area for the selected system message
     system_message_display = gr.Textbox(label="System Message", value="", interactive=False)
 
+    # Update the system message when a button is clicked
     elementary_button.click(fn=lambda: update_system_message("Elementary School"), inputs=None, outputs=system_message_display)
     middle_button.click(fn=lambda: update_system_message("Middle School"), inputs=None, outputs=system_message_display)
     high_button.click(fn=lambda: update_system_message("High School"), inputs=None, outputs=system_message_display)
@@ -157,6 +169,7 @@ with gr.Blocks(css=custom_css) as demo:
 
     with gr.Row():  
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
+    
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
@@ -169,9 +182,12 @@ with gr.Blocks(css=custom_css) as demo:
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
 
-    user_input.submit(fn=respond, inputs=[user_input, chat_history, system_message_display, max_tokens, temperature, top_p, use_local_model], outputs=chat_history)
+    # Adjusted to ensure history is maintained and passed correctly
+    user_input.submit(respond, [user_input, chat_history, system_message_display, max_tokens, temperature, top_p, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
+
+
 if __name__ == "__main__":
-    demo.launch(share=False)
+    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces 
