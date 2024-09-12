@@ -1,4 +1,4 @@
-import gradio as gr
+import gradio as gr 
 from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
@@ -11,7 +11,6 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 
 # Global flag to handle cancellation
 stop_inference = False
-
 
 def respond(
     message,
@@ -77,9 +76,6 @@ def respond(
                 response = "Inference cancelled."
                 yield history + [(message, response)]
                 return
-            if stop_inference:
-                response = "Inference cancelled."
-                break
             token = message_chunk.choices[0].delta.content
             response += token
             yield history + [(message, response)]  # Yield history + new response
@@ -89,7 +85,7 @@ def cancel_inference():
     global stop_inference
     stop_inference = True
 
-# Custom CSS for a fancy look
+# Custom CSS to disable buttons visually
 custom_css = """
 #main-container {
     background: #cdebc5;
@@ -112,20 +108,9 @@ custom_css = """
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-.gr-button:hover {
-    background-color: #45a049;
-}
-.gr-slider input {
-    color: #4CAF50;
-}
-.gr-chat {
-    font-size: 16px;
-}
-#title {
-    text-align: center;
-    font-size: 2em;
-    margin-bottom: 20px;
-    color: #a7e0fd;
+.gr-button:disabled {
+    background-color: grey;
+    cursor: not-allowed;
 }
 #school_ai_image {
     width: 150px;
@@ -146,11 +131,22 @@ def update_system_message(level):
     elif level == "College":
         return "Your name is Wormington. You are a friendly Chatbot that can help answer questions from college students. Please respond using very advanced, college-level vocabulary."
 
+# Disable all buttons after one is clicked
+def disable_buttons_and_update_message(level):
+    system_message = update_system_message(level)
+    # Update button states to disabled
+    return system_message, gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False), gr.update(interactive=False)
+
+# Restart function to refresh the app
+def restart_chatbot():
+    # Reset buttons and clear system message display
+    return gr.update(value="", interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True)
+
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
     gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
-    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.")
+    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
 
     with gr.Row():
         elementary_button = gr.Button("Elementary School", elem_id="elementary", variant="primary")
@@ -161,15 +157,25 @@ with gr.Blocks(css=custom_css) as demo:
     # Display area for the selected system message
     system_message_display = gr.Textbox(label="System Message", value="", interactive=False)
 
-    # Update the system message when a button is clicked
-    elementary_button.click(fn=lambda: update_system_message("Elementary School"), inputs=None, outputs=system_message_display)
-    middle_button.click(fn=lambda: update_system_message("Middle School"), inputs=None, outputs=system_message_display)
-    high_button.click(fn=lambda: update_system_message("High School"), inputs=None, outputs=system_message_display)
-    college_button.click(fn=lambda: update_system_message("College"), inputs=None, outputs=system_message_display)
+    # Disable buttons and update the system message when a button is clicked
+    elementary_button.click(fn=lambda: disable_buttons_and_update_message("Elementary School"), 
+                            inputs=None, 
+                            outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
+    
+    middle_button.click(fn=lambda: disable_buttons_and_update_message("Middle School"), 
+                        inputs=None, 
+                        outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
+    
+    high_button.click(fn=lambda: disable_buttons_and_update_message("High School"), 
+                      inputs=None, 
+                      outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
+    
+    college_button.click(fn=lambda: disable_buttons_and_update_message("College"), 
+                         inputs=None, 
+                         outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
 
     with gr.Row():  
         use_local_model = gr.Checkbox(label="Use Local Model", value=False)
-    
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
@@ -181,13 +187,17 @@ with gr.Blocks(css=custom_css) as demo:
     user_input = gr.Textbox(show_label=False, placeholder="Wormington would love to answer your questions. Type them here:")
 
     cancel_button = gr.Button("Cancel Inference", variant="danger")
+    restart_button = gr.Button("Restart Chatbot", variant="secondary")
 
     # Adjusted to ensure history is maintained and passed correctly
     user_input.submit(respond, [user_input, chat_history, system_message_display, max_tokens, temperature, top_p, use_local_model], chat_history)
 
     cancel_button.click(cancel_inference)
 
-
+    # Reset the buttons when the "Restart Chatbot" button is clicked
+    restart_button.click(fn=restart_chatbot, 
+                         inputs=None, 
+                         outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
 
 if __name__ == "__main__":
-    demo.launch(share=False)  # Remove share=True because it's not supported on HF Spaces 
+    demo.launch(share=False)
