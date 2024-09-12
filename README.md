@@ -1,5 +1,5 @@
 ---
-title: Wormington Chatbot Scholar!!!
+title: Wormington Scholar Chatbot
 emoji: 💬
 colorFrom: yellow
 colorTo: purple
