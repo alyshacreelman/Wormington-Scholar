@@ -1,9 +1,12 @@
-Welcome to the Wormington Scholar Chatbot!
+---
+title: Wormington Scholar Chatbot
+emoji: 💬
+colorFrom: yellow
+colorTo: purple
+sdk: gradio
+sdk_version: 4.36.1
+app_file: app.py
+pinned: false
+---
 
-Wormington is a freindly, green worm that happens to be very intelligent. Not only is he a smart guy... he is a great teacher! Wormington knows how to tailor his responses to multiple different age groups including:
-- Elementary School
-- Middle School
-- High School
-- College
-
-Wormington was adapted from Yang's Chatbot created for a CS 553 class example. Alysha, Erika, and Jen worked on this modification!
+An modification of Yang's chatbot by Alysha, Jen, and Erika using [Gradio](https://gradio.app), [`huggingface_hub`](https://huggingface.co/docs/huggingface_hub/v0.22.2/en/index), and the [Hugging Face Inference API](https://huggingface.co/docs/api-inference/index).
