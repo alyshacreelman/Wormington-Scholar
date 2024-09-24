@@ -1,7 +1,5 @@
 #! /bin/bash
 
-chmod +x your_script.sh
-
 # move to tmp
 cd /tmp
 
