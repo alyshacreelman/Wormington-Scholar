@@ -4,7 +4,7 @@
 cd /tmp
 
 # generate the key
-ssh-keygen -f my_key2 -t ed25519
+ssh-keygen -f group_key -t ed25519
 
 
 
