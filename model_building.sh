@@ -1,5 +1,8 @@
 #! /bin/bash
 
+PORT=22003
+MACHINE=paffenroth-23.dyn.wpi.edu
+
 # check that the code in installed and start up the product
 COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
