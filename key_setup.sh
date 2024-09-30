@@ -29,7 +29,7 @@ chmod 600 group_key*
 
 # Insert the key into the authorized_keys file on the server
 # One > creates
-cat mykey.pub > authorized_keys
+cat group_key.pub > authorized_keys
 # two >> appends
 # Remove to lock down machine
 #cat student-admin_key.pub >> authorized_keys
@@ -45,7 +45,7 @@ scp -i student-admin_key -P ${PORT} -o StrictHostKeyChecking=no authorized_keys 
 
 # Add the key to the ssh-agent
 eval "$(ssh-agent -s)"
-ssh-add mykey
+ssh-add group_key
 
 # entered our password
 
