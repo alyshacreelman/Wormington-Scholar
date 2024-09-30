@@ -6,6 +6,10 @@ MACHINE=paffenroth-23.dyn.wpi.edu
 # check that the code in installed and start up the product
 COMMAND="ssh -i group_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
+# Add the key to the ssh-agent
+eval "$(ssh-agent -s)"
+ssh-add group_key
+
 ${COMMAND} "ls Wormington-Scholar"
 ${COMMAND} "cd Wormington-Scholar"
 ${COMMAND} "git pull"
