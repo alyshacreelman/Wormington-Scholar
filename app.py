@@ -145,7 +145,7 @@ def restart_chatbot():
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Image("Wormington-Scholar/wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
+    gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
     gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
 
     with gr.Row():
