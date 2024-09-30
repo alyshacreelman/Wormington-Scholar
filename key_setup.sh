@@ -4,7 +4,7 @@ PORT=22003
 MACHINE=paffenroth-23.dyn.wpi.edu
 
 # Clean up from previous runs
-ssh-keygen -f "/home/amcreelman/.ssh/known_hosts" -R "[${MACHINE}]:${PORT}
+ssh-keygen -f "/home/amcreelman/.ssh/known_hosts" -R "[${MACHINE}]:${PORT}"
 rm -rf tmp2
 
 # Create a temporary directory
