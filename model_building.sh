@@ -4,7 +4,7 @@ PORT=22003
 MACHINE=paffenroth-23.dyn.wpi.edu
 
 # check that the code in installed and start up the product
-COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
+COMMAND="ssh -i group_key -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
 ${COMMAND} "ls Wormington-Scholar"
 ${COMMAND} "cd Wormington-Scholar"
