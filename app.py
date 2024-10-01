@@ -142,11 +142,22 @@ def restart_chatbot():
     # Reset buttons and clear system message display
     return gr.update(value="", interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True)
 
+# changing the path to the image if we are using the virtual machine to host
+
+# Get the current working directory
+current_dir = os.getcwd()
+
+# Check if we are in tmp2, which is only the case if we are in the vm
+if "tmp2" in current_dir:
+    image_path = "/Wormington-Scholar/wormington_headshot.jpg"
+else:
+    image_path = "wormington_headshot.jpg"
+
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
-    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
+    gr.Image(image_path, elem_id="school_ai_image", show_label=False, interactive=False)
+    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")https://github.com/alyshacreelman/Wormington-Scholar/blob/main/app.py
 
     with gr.Row():
         elementary_button = gr.Button("Elementary School", elem_id="elementary", variant="primary")
