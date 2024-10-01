@@ -6,7 +6,7 @@ import os
 
 # Inference client setup with token from environment
 token = os.getenv('HF_TOKEN')
-client = InferenceClient(model="HuggingFaceH4/zephyr-7b-beta", token=token)
+client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
