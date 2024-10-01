@@ -142,10 +142,13 @@ def restart_chatbot():
     # Reset buttons and clear system message display
     return gr.update(value="", interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True)
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+image_path = os.path.join(script_dir, 'wormington_headshot.jpg')
+
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
+    gr.Image(image_path, elem_id="school_ai_image", show_label=False, interactive=False)
     gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
 
     with gr.Row():
