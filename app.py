@@ -7,8 +7,7 @@ import os
 # Inference client setup with token from environment
 token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
-pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
-#pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -143,22 +142,11 @@ def restart_chatbot():
     # Reset buttons and clear system message display
     return gr.update(value="", interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True), gr.update(interactive=True)
 
-# changing the path to the image if we are using the virtual machine to host
-
-# Get the current working directory
-current_dir = os.getcwd()
-
-# Check if we are in tmp2, which is only the case if we are in the vm
-if "tmp2" in current_dir:
-    image_path = "/Wormington-Scholar/wormington_headshot.jpg"
-else:
-    image_path = "wormington_headshot.jpg"
-
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Image(image_path, elem_id="school_ai_image", show_label=False, interactive=False)
-    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")https://github.com/alyshacreelman/Wormington-Scholar/blob/main/app.py
+    gr.Image("wormington_headshot.jpg", elem_id="school_ai_image", show_label=False, interactive=False)
+    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
 
     with gr.Row():
         elementary_button = gr.Button("Elementary School", elem_id="elementary", variant="primary")
