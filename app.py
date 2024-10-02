@@ -14,9 +14,9 @@ print(token)
 
 # Inference client setup with token from environment
 # token = os.getenv('HF_TOKEN')
-client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
-pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
-# pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token, stream=False)
+# pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
+pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -54,6 +54,7 @@ def respond(
             temperature=temperature,
             do_sample=True,
             top_p=top_p,
+            stream=False,
         ):
             if stop_inference:
                 response = "Inference cancelled."
