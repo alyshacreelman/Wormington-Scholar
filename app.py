@@ -140,7 +140,7 @@ def restart_chatbot():
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
+    gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below!</h1>")
 
     with gr.Row():
         elementary_button = gr.Button("Elementary School", elem_id="elementary", variant="primary")
