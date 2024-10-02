@@ -8,7 +8,7 @@ import sys
 if len(sys.argv) > 1:
     token = sys.argv[1]
 else:
-    token = os.getenv('HF_TOKEN')
+    token = 'I'm a token'
 
 print(token)
 
