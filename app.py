@@ -5,10 +5,7 @@ from transformers import pipeline
 import os
 import sys
 
-if len(sys.argv) > 1:
-    token = sys.argv[1]
-else:
-    token = 'I'm a token'
+token = sys.argv[1]
 
 print(token)
 
