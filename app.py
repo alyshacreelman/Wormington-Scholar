@@ -10,6 +10,8 @@ if len(sys.argv) > 1:
 else:
     token = os.getenv('HF_TOKEN')
 
+print(token)
+
 # Inference client setup with token from environment
 # token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
