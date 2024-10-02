@@ -71,6 +71,6 @@ ${COMMAND} "ls Wormington-Scholar"
 ${COMMAND} "sudo apt install -qq -y python3-venv"
 ${COMMAND} "cd Wormington-Scholar && python3 -m venv venv"
 ${COMMAND} "cd Wormington-Scholar && source venv/bin/activate && pip install -r requirements.txt"
-${COMMAND} "nohup Wormington-Scholar/venv/bin/python3 Wormington-Scholar/app.py ${HF_TOKEN} > log.txt 2>&1 &"
+${COMMAND} "nohup Wormington-Scholar/venv/bin/python3 Wormington-Scholar/app.py \"${HF_TOKEN}\" --stream=False > log.txt 2>&1 &"
 
 # nohup ./whatever > /dev/null 2>&1 
