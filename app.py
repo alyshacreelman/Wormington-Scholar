@@ -3,9 +3,15 @@ from huggingface_hub import InferenceClient
 import torch
 from transformers import pipeline
 import os
+import sys
+
+if len(sys.argv) > 1:
+    token = sys.argv[1]
+else:
+    token = os.getenv('HF_TOKEN')
 
 # Inference client setup with token from environment
-token = os.getenv('HF_TOKEN')
+# token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
 pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
 # pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
