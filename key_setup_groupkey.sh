@@ -10,7 +10,7 @@ rm -rf tmp2
 # Create a temporary directory
 mkdir tmp2
 
-HF_TOKEN='cat /wormington_keys/hf_token'
+HF_TOKEN=`cat /wormington_keys/hf_token`
 echo ${HF_TOKEN}
 
 # copy the key to the temporary directory
