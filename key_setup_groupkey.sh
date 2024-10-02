@@ -10,6 +10,9 @@ rm -rf tmp2
 # Create a temporary directory
 mkdir tmp2
 
+HF_TOKEN='cat /wormington_keys/hf_token'
+echo ${HF_TOKEN}
+
 # copy the key to the temporary directory
 cp wormington_keys/group_key* tmp2
 
@@ -68,6 +71,6 @@ ${COMMAND} "ls Wormington-Scholar"
 ${COMMAND} "sudo apt install -qq -y python3-venv"
 ${COMMAND} "cd Wormington-Scholar && python3 -m venv venv"
 ${COMMAND} "cd Wormington-Scholar && source venv/bin/activate && pip install -r requirements.txt"
-${COMMAND} "nohup Wormington-Scholar/venv/bin/python3 Wormington-Scholar/app.py > log.txt 2>&1 &"
+${COMMAND} "nohup Wormington-Scholar/venv/bin/python3 Wormington-Scholar/app.py ${HF_TOKEN} > log.txt 2>&1 &"
 
 # nohup ./whatever > /dev/null 2>&1 
