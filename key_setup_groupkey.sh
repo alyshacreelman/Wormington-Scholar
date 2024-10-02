@@ -67,6 +67,8 @@ scp -P ${PORT} -o StrictHostKeyChecking=no -r Wormington-Scholar student-admin@$
 # check that the code in installed and start up the product
 COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
+${COMMAND} "pkill -f app.py"
+
 ${COMMAND} "ls Wormington-Scholar"
 ${COMMAND} "sudo apt install -qq -y python3-venv"
 ${COMMAND} "cd Wormington-Scholar && python3 -m venv venv"
