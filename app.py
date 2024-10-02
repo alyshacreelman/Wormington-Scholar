@@ -7,7 +7,8 @@ import os
 # Inference client setup with token from environment
 token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
+# pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
@@ -145,7 +146,6 @@ def restart_chatbot():
 # Define interface
 with gr.Blocks(css=custom_css) as demo:
     gr.Markdown("<h2 style='text-align: center;'>🍎✏️ School AI Chatbot ✏️🍎</h2>")
-    gr.Image('wormington_headshot.jpg', type="filepath", elem_id="school_ai_image", show_label=False, interactive=False)
     gr.Markdown("<h1 style= 'text-align: center;'>Interact with Wormington Scholar 🐛 by selecting the appropriate level below.</h1>")
 
     with gr.Row():
