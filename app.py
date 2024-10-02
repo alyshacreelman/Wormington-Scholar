@@ -113,12 +113,6 @@ custom_css = """
     background-color: grey;
     cursor: not-allowed;
 }
-#school_ai_image {
-    width: 150px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
 """
 
 # Define system messages for each level
