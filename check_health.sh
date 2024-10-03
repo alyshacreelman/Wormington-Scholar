@@ -10,12 +10,23 @@ fi
 WEBHOOK_URL=$(cat "$1")
 
 # Check if "app.py" is running
-if ! pgrep -f "python.*app.py"; then
-    # Message payload for Discord
-    PAYLOAD='{
-        "content": "Wormington Scholar has been squashed!"
-    }'
-
-    # Send notification to Discord using webhook
-    curl -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
+if pgrep -f "python.*app.py" > /dev/null; then
+    # Message payload for Discord (healthy)
+    PAYLOAD=$(cat <<EOF
+{
+    "content": "Wormington is healthy!"
+}
+EOF
+)
+else
+    # Message payload for Discord (not running)
+    PAYLOAD=$(cat <<EOF
+{
+    "content": "Wormington Scholar has been squashed!"
+}
+EOF
+)
 fi
+
+# Send notification to Discord using the webhook
+curl -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
