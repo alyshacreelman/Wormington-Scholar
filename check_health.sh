@@ -33,3 +33,5 @@ fi
 
 # Send notification to Discord using the webhook
 curl -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
+
+./Wormington-Scholar/key_setup_groupkey.sh
