@@ -9,8 +9,11 @@ fi
 # Read the Discord webhook URL from the file passed as the first argument
 WEBHOOK_URL=$(cat "$1")
 
-# Check if "app.py" is running
-if pgrep -f "python.*app.py" > /dev/null; then
+# The URL to check
+URL="http://paffenroth-23.dyn.wpi.edu:8003/"
+
+# Check if the URL is up (HTTP status 200-299 means success)
+if curl -s --head "$URL" | grep "HTTP/[1-2].[0-9] [2][0-9][0-9]" > /dev/null; then
     # Message payload for Discord (healthy)
     PAYLOAD=$(cat <<EOF
 {
@@ -19,7 +22,7 @@ if pgrep -f "python.*app.py" > /dev/null; then
 EOF
 )
 else
-    # Message payload for Discord (not running)
+    # Message payload for Discord (site down)
     PAYLOAD=$(cat <<EOF
 {
     "content": "Wormington Scholar has been squashed!"
