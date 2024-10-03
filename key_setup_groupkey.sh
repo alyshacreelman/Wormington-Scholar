@@ -11,7 +11,6 @@ rm -rf tmp2
 mkdir tmp2
 
 HF_TOKEN=$(<wormington_keys/hf_token)
-echo "$HF_TOKEN"
 
 # copy the key to the temporary directory
 cp wormington_keys/group_key* tmp2
