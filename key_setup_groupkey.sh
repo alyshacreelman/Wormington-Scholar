@@ -61,8 +61,6 @@ git clone https://github.com/alyshacreelman/Wormington-Scholar
 # Copy the files to the server
 scp -P ${PORT} -o StrictHostKeyChecking=no -r Wormington-Scholar student-admin@${MACHINE}:~/
 
-# from here on code is currently commented out in Randy's code
-
 # check that the code in installed and start up the product
 COMMAND="ssh -p ${PORT} -o StrictHostKeyChecking=no student-admin@${MACHINE}"
 
