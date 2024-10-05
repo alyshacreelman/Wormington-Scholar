@@ -1,11 +1,5 @@
 #!/bin/bash
 
-# Check if a file was passed as an argument
-if [ -z "$1" ]; then
-    echo "Usage: $0 <webhook_file>"
-    exit 1
-fi
-
 # Read the Discord webhook URL from the file passed as the first argument
 WEBHOOK_URL=$(cat "$1")
 
