@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# This script incorrectly tries to get the model running and esentially "kills" Wormington. It was run by us when we wanted to test our check_health.sh file and mkae sure our key_setup.sh file successfully gets the model back up and running
 PORT=22003
 MACHINE=paffenroth-23.dyn.wpi.edu
 
