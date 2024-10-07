@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# This file was used to test if the check_health.sh file works but instead calls the key_setup_groupkey.sh instead because we were running this when student-admin_key was not in the machine and wanted to use group_key instead.
 # Read the Discord webhook URL from the file passed as the first argument
 WEBHOOK_URL=$(cat "$1")
 
@@ -28,4 +28,4 @@ fi
 # Send notification to Discord using the webhook
 curl -H "Content-Type: application/json" -d "$PAYLOAD" "$WEBHOOK_URL"
 
-./Wormington-Scholar/key_setup_groupkey.sh
+./Wormington-Scholar/FOR_TESTING_key_setup_groupkey.sh
