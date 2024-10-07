@@ -1,5 +1,5 @@
 #! /bin/bash
-
+# This is the automation script for putting out key in the machine and getting the product up and running for Case Study 2.
 # Establishing what our port and machine are
 PORT=22003
 MACHINE=paffenroth-23.dyn.wpi.edu
