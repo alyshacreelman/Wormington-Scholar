@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# This is the actual check_health.sh file that we are submitting as the extra credit for case study 2
 # Read the Discord webhook URL from the file passed as the first argument (keeping it on the computer and not pasting here for security purposes)
 WEBHOOK_URL=$(cat "$1")
 
