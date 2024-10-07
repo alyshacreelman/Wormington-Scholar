@@ -1,3 +1,4 @@
+# This script was used in the testing stage when trying to only rerun the model and not actually change the keys in the machine. It is not functional but is being kept for reference
 #! /bin/bash
 
 PORT=22003
