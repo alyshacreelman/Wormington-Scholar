@@ -1,5 +1,5 @@
 #! /bin/bash
-
+# This script was used to make sure our key_setup.sh file works but doesn't require that the student-admin_key is in the machine. It uses the group_key instead
 PORT=22003
 MACHINE=paffenroth-23.dyn.wpi.edu
 
