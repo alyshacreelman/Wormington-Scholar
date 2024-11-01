@@ -4,10 +4,25 @@ import torch
 from transformers import pipeline
 import os
 import sys
+from prometheus_client import start_http_server, Counter, Summary, Gauge
+import resource
 
 token = sys.argv[1]
 
 print(token)
+
+# Prometheus metrics
+REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
+EM_REQUEST_COUNTER = Counter('em_requests_total', 'Total number of elementary school level requests')
+MD_REQUEST_COUNTER = Counter('md_requests_total', 'Total number of middle school level requests')
+HS_REQUEST_COUNTER = Counter('hs_requests_total', 'Total number of high school level requests')
+CL_REQUEST_COUNTER = Counter('cl_requests_total', 'Total number of college level requests')
+SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
+FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
+REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
+API_REQUEST_COUNTER = Counter('app_api_requests_total', 'Total number of API requests')
+LOCAL_MODEL_REQUEST_COUNTER = Counter('app_local_model_requests_total', 'Total number of local model requests')
+MEMORY_USAGE_GAUGE = Gauge('app_memory_usage_bytes', 'Current memory usage in bytes')
 
 # Inference client setup with token from environment
 # token = os.getenv('HF_TOKEN')
@@ -17,6 +32,11 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 
 # Global flag to handle cancellation
 stop_inference = False
+
+def update_memory_usage():
+    # Get the current process memory usage
+    memory_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # Memory in kilobytes
+    MEMORY_USAGE_GAUGE.set(memory_usage * 1024)  # Convert to bytes and update the gauge
 
 def respond(
     message,
@@ -29,63 +49,85 @@ def respond(
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
+    REQUEST_COUNTER.inc()
+    request_timer = REQUEST_DURATION.time()
+    
+    try:
+        # Initialize history if it's None
+        if history is None:
+            history = []
+            
+        # Count requests based on educational level
+        # This could be moved if it doesn't work
+        if "elementary" in message.lower():
+            ELEMENTARY_REQUEST_COUNTER.inc()
+        elif "middle school" in message.lower():
+            MIDDLE_REQUEST_COUNTER.inc()
+        elif "high school" in message.lower():
+            HIGH_SCHOOL_REQUEST_COUNTER.inc()
+        elif "college" in message.lower():
+            COLLEGE_REQUEST_COUNTER.inc()
 
-    # Initialize history if it's None
-    if history is None:
-        history = []
+        if use_local_model:
+            LOCAL_MODEL_REQUEST_COUNTER.inc()
+            # local inference 
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
+    
+            response = ""
+            for output in pipe(
+                messages,
+                max_new_tokens=max_tokens,
+                temperature=temperature,
+                do_sample=True,
+                top_p=top_p,
+            ):
+                if stop_inference:
+                    response = "Inference cancelled."
+                    yield history + [(message, response)]
+                    return
+                token = output['generated_text'][-1]['content']
+                response += token
+                yield history + [(message, response)]  # Yield history + new response
 
-    if use_local_model:
-        # local inference 
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
+        else:
+            API_REQUEST_COUNTER.inc()
+            # API-based inference 
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
 
-        response = ""
-        for output in pipe(
-            messages,
-            max_new_tokens=max_tokens,
-            temperature=temperature,
-            do_sample=True,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = output['generated_text'][-1]['content']
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
+            response = ""
+            for message_chunk in client.chat_completion(
+                messages,
+                max_tokens=max_tokens,
+                stream=True,
+                temperature=temperature,
+                top_p=top_p,
+            ):
+                if stop_inference:
+                    response = "Inference cancelled."
+                    yield history + [(message, response)]
+                    return
+                token = message_chunk.choices[0].delta.content
+                response += token
+                yield history + [(message, response)]  # Yield history + new response
 
-    else:
-        # API-based inference 
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
-
-        response = ""
-        for message_chunk in client.chat_completion(
-            messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=temperature,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = message_chunk.choices[0].delta.content
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
-
+        SUCCESSFUL_REQUESTS.inc()
+    except Exception as e:
+        FAILED_REQUESTS.inc()
+        yield history + [(message, f"Error: {str(e)}")]
+    finally:
+        request_timer.observe_duration()
 
 def cancel_inference():
     global stop_inference
