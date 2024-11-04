@@ -7,10 +7,6 @@ import sys
 from prometheus_client import start_http_server, Counter, Summary, Gauge
 import resource
 
-token = sys.argv[1]
-
-print(token)
-
 # Prometheus metrics
 REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
 EM_REQUEST_COUNTER = Counter('em_requests_total', 'Total number of elementary school level requests')
@@ -25,8 +21,7 @@ LOCAL_MODEL_REQUEST_COUNTER = Counter('app_local_model_requests_total', 'Total n
 MEMORY_USAGE_GAUGE = Gauge('app_memory_usage_bytes', 'Current memory usage in bytes')
 
 # Inference client setup with token from environment
-# token = os.getenv('HF_TOKEN')
-client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
+client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha")
 # pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
 pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
