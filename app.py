@@ -45,84 +45,82 @@ def respond(
     global stop_inference
     stop_inference = False  # Reset cancellation flag
     REQUEST_COUNTER.inc()
-    request_timer = REQUEST_DURATION.time()
     
-    try:
-        # Initialize history if it's None
-        if history is None:
-            history = []
-            
-        # Count requests based on educational level
-        # This could be moved if it doesn't work
-        if "elementary" in message.lower():
-            ELEMENTARY_REQUEST_COUNTER.inc()
-        elif "middle school" in message.lower():
-            MIDDLE_REQUEST_COUNTER.inc()
-        elif "high school" in message.lower():
-            HIGH_SCHOOL_REQUEST_COUNTER.inc()
-        elif "college" in message.lower():
-            COLLEGE_REQUEST_COUNTER.inc()
+    # Use Summary with a context manager
+    with REQUEST_DURATION.time():  # This replaces `request_timer = REQUEST_DURATION.time()`
+        try:
+            # Initialize history if it's None
+            if history is None:
+                history = []
+                
+            # Count requests based on educational level
+            if "elementary" in message.lower():
+                EM_REQUEST_COUNTER.inc()
+            elif "middle school" in message.lower():
+                MD_REQUEST_COUNTER.inc()
+            elif "high school" in message.lower():
+                HS_REQUEST_COUNTER.inc()
+            elif "college" in message.lower():
+                CL_REQUEST_COUNTER.inc()
 
-        if use_local_model:
-            LOCAL_MODEL_REQUEST_COUNTER.inc()
-            # local inference 
-            messages = [{"role": "system", "content": system_message}]
-            for val in history:
-                if val[0]:
-                    messages.append({"role": "user", "content": val[0]})
-                if val[1]:
-                    messages.append({"role": "assistant", "content": val[1]})
-            messages.append({"role": "user", "content": message})
-    
-            response = ""
-            for output in pipe(
-                messages,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-                do_sample=True,
-                top_p=top_p,
-            ):
-                if stop_inference:
-                    response = "Inference cancelled."
-                    yield history + [(message, response)]
-                    return
-                token = output['generated_text'][-1]['content']
-                response += token
-                yield history + [(message, response)]  # Yield history + new response
+            if use_local_model:
+                LOCAL_MODEL_REQUEST_COUNTER.inc()
+                # Local inference 
+                messages = [{"role": "system", "content": system_message}]
+                for val in history:
+                    if val[0]:
+                        messages.append({"role": "user", "content": val[0]})
+                    if val[1]:
+                        messages.append({"role": "assistant", "content": val[1]})
+                messages.append({"role": "user", "content": message})
 
-        else:
-            API_REQUEST_COUNTER.inc()
-            # API-based inference 
-            messages = [{"role": "system", "content": system_message}]
-            for val in history:
-                if val[0]:
-                    messages.append({"role": "user", "content": val[0]})
-                if val[1]:
-                    messages.append({"role": "assistant", "content": val[1]})
-            messages.append({"role": "user", "content": message})
+                response = ""
+                for output in pipe(
+                    messages,
+                    max_new_tokens=max_tokens,
+                    temperature=temperature,
+                    do_sample=True,
+                    top_p=top_p,
+                ):
+                    if stop_inference:
+                        response = "Inference cancelled."
+                        yield history + [(message, response)]
+                        return
+                    token = output['generated_text'][-1]['content']
+                    response += token
+                    yield history + [(message, response)]  # Yield history + new response
 
-            response = ""
-            for message_chunk in client.chat_completion(
-                messages,
-                max_tokens=max_tokens,
-                stream=True,
-                temperature=temperature,
-                top_p=top_p,
-            ):
-                if stop_inference:
-                    response = "Inference cancelled."
-                    yield history + [(message, response)]
-                    return
-                token = message_chunk.choices[0].delta.content
-                response += token
-                yield history + [(message, response)]  # Yield history + new response
+            else:
+                API_REQUEST_COUNTER.inc()
+                # API-based inference 
+                messages = [{"role": "system", "content": system_message}]
+                for val in history:
+                    if val[0]:
+                        messages.append({"role": "user", "content": val[0]})
+                    if val[1]:
+                        messages.append({"role": "assistant", "content": val[1]})
+                messages.append({"role": "user", "content": message})
 
-        SUCCESSFUL_REQUESTS.inc()
-    except Exception as e:
-        FAILED_REQUESTS.inc()
-        yield history + [(message, f"Error: {str(e)}")]
-    finally:
-        request_timer.observe_duration()
+                response = ""
+                for message_chunk in client.chat_completion(
+                    messages,
+                    max_tokens=max_tokens,
+                    stream=True,
+                    temperature=temperature,
+                    top_p=top_p,
+                ):
+                    if stop_inference:
+                        response = "Inference cancelled."
+                        yield history + [(message, response)]
+                        return
+                    token = message_chunk.choices[0].delta.content
+                    response += token
+                    yield history + [(message, response)]  # Yield history + new response
+
+            SUCCESSFUL_REQUESTS.inc()
+        except Exception as e:
+            FAILED_REQUESTS.inc()
+            yield history + [(message, f"Error: {str(e)}")]
 
 def cancel_inference():
     global stop_inference
