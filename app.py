@@ -7,7 +7,8 @@ import sys
 from prometheus_client import start_http_server, Counter, Summary, Gauge
 import resource
 
-token = TOKEN
+token = os.environ.get('TOKEN')
+
 
 # Prometheus metrics
 REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
