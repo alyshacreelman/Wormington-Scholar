@@ -98,14 +98,14 @@ def respond(
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
 
-        except json.JSONDecodeError as e:
-            print(f"Error parsing JSON: {e}")
-            response = "Sorry, there was an error with the response format."
-            yield history + [(message, response)]
-        except Exception as e:
-            print(f"Error while processing API response: {e}")
-            response = "Sorry, there was an error while generating the response."
-            yield history + [(message, response)]
+        # except json.JSONDecodeError as e:
+        #     print(f"Error parsing JSON: {e}")
+        #     response = "Sorry, there was an error with the response format."
+        #     yield history + [(message, response)]
+        # except Exception as e:
+        #     print(f"Error while processing API response: {e}")
+        #     response = "Sorry, there was an error while generating the response."
+        #     yield history + [(message, response)]
 
 def cancel_inference():
     global stop_inference
