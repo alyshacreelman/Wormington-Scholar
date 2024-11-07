@@ -19,7 +19,7 @@ HS_REQUEST_COUNTER = Counter('hs_requests_total', 'Total number of high school l
 CL_REQUEST_COUNTER = Counter('cl_requests_total', 'Total number of college level requests')
 SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
 FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
-REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
+# REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
 API_REQUEST_COUNTER = Counter('app_api_requests_total', 'Total number of API requests')
 LOCAL_MODEL_REQUEST_COUNTER = Counter('app_local_model_requests_total', 'Total number of local model requests')
 MEMORY_USAGE_GAUGE = Gauge('app_memory_usage_bytes', 'Current memory usage in bytes')
@@ -51,7 +51,7 @@ def respond(
     stop_inference = False  # Reset cancellation flag
 
     REQUEST_COUNTER.inc()
-    request_timer = REQUEST_DURATION.time()
+    # request_timer = REQUEST_DURATION.time()
     
     try:
         # Initialize history if it's None
@@ -142,8 +142,8 @@ def respond(
     except Exception as e:
         FAILED_REQUESTS.inc()
         yield history + [(message, f"Error: {str(e)}")]
-    finally:
-        request_timer.observe_duration()
+    # finally:
+    #     request_timer.observe_duration()
 
         # except json.JSONDecodeError as e:
         #     print(f"Error parsing JSON: {e}")
