@@ -49,23 +49,27 @@ def respond(
     stop_inference = False  # Reset cancellation flag
     
     REQUEST_COUNTER.inc()
+    # request_timer = REQUEST_DURATION.time()
     
     try:
+        # Initialize history if it's None
         if history is None:
             history = []
-        
+            
         # Count requests based on educational level
+        # This could be moved if it doesn't work
         if "elementary" in message.lower():
-            EM_REQUEST_COUNTER.inc()
+            ELEMENTARY_REQUEST_COUNTER.inc()
         elif "middle school" in message.lower():
-            MD_REQUEST_COUNTER.inc()
+            MIDDLE_REQUEST_COUNTER.inc()
         elif "high school" in message.lower():
-            HS_REQUEST_COUNTER.inc()
+            HIGH_SCHOOL_REQUEST_COUNTER.inc()
         elif "college" in message.lower():
-            CL_REQUEST_COUNTER.inc()
+            COLLEGE_REQUEST_COUNTER.inc()
 
         if use_local_model:
             LOCAL_MODEL_REQUEST_COUNTER.inc()
+            # local inference 
             messages = [{"role": "system", "content": system_message}]
             for val in history:
                 if val[0]:
@@ -73,7 +77,7 @@ def respond(
                 if val[1]:
                     messages.append({"role": "assistant", "content": val[1]})
             messages.append({"role": "user", "content": message})
-
+    
             response = ""
             for output in pipe(
                 messages,
@@ -86,55 +90,42 @@ def respond(
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
-                
-                # Check the output structure
-                print("Local Model Output:", output)  # Debugging print
                 token = output['generated_text'][-1]['content']
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
 
-    else:
-        API_REQUEST_COUNTER.inc()
-        response = ""  # Initialize response outside the loop
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
-        
-        # Collect all chunks
-        for message_chunk in client.chat_completion(
-            messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=temperature,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                break  # Exit the loop on cancellation
-            
-            # Check the structure of message_chunk and extract content
-            print("Raw Message Chunk:", message_chunk)  # Debugging print
-            if hasattr(message_chunk, 'choices') and message_chunk.choices:
-                content = message_chunk.choices[0].delta.content
-                if content:  # Ensure content is not empty
-                    response += content  # Accumulate response
-            else:
-                print("Error: Invalid message chunk structure:", message_chunk)
-                response += "Error: Invalid response structure."
-                break  # Exit the loop if the structure is invalid
-    
-        yield history + [(message, response)]  # Yield only once at the end
+        else:
+            API_REQUEST_COUNTER.inc()
+            # API-based inference 
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
 
+            response = ""
+            for message_chunk in client.chat_completion(
+                messages,
+                max_tokens=max_tokens,
+                stream=True,
+                temperature=temperature,
+                top_p=top_p,
+            ):
+                if stop_inference:
+                    response = "Inference cancelled."
+                    yield history + [(message, response)]
+                    return
+                    
+                # Printing out the message before processing
+                print("Message Chunk:", message_chunk)
+                
+                token = message_chunk.choices[0].delta.content
+                response += token
+                yield history + [(message, response)]  # Yield history + new response
 
         SUCCESSFUL_REQUESTS.inc()
-    except Exception as e:
-        FAILED_REQUESTS.inc()
-        yield history + [(message, f"Error: {str(e)}")]
-
     except Exception as e:
         FAILED_REQUESTS.inc()
         yield history + [(message, f"Error: {str(e)}")]
