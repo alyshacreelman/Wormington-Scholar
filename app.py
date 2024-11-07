@@ -9,8 +9,6 @@ import resource
 
 token = os.environ.get('TOKEN')
 
-print(token)
-
 # Prometheus metrics
 REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
 EM_REQUEST_COUNTER = Counter('em_requests_total', 'Total number of elementary school level requests')
@@ -119,6 +117,10 @@ def respond(
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
+                    
+                # Printing out the message before processing
+                print("Message Chunk:", message_chunk)
+                
                 token = message_chunk.choices[0].delta.content
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
