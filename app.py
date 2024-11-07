@@ -9,6 +9,7 @@ import resource
 
 token = os.environ.get('TOKEN')
 
+print(token)
 
 # Prometheus metrics
 REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
