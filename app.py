@@ -49,27 +49,23 @@ def respond(
     stop_inference = False  # Reset cancellation flag
     
     REQUEST_COUNTER.inc()
-    # request_timer = REQUEST_DURATION.time()
     
     try:
-        # Initialize history if it's None
         if history is None:
             history = []
-            
+        
         # Count requests based on educational level
-        # This could be moved if it doesn't work
         if "elementary" in message.lower():
-            ELEMENTARY_REQUEST_COUNTER.inc()
+            EM_REQUEST_COUNTER.inc()
         elif "middle school" in message.lower():
-            MIDDLE_REQUEST_COUNTER.inc()
+            MD_REQUEST_COUNTER.inc()
         elif "high school" in message.lower():
-            HIGH_SCHOOL_REQUEST_COUNTER.inc()
+            HS_REQUEST_COUNTER.inc()
         elif "college" in message.lower():
-            COLLEGE_REQUEST_COUNTER.inc()
+            CL_REQUEST_COUNTER.inc()
 
         if use_local_model:
             LOCAL_MODEL_REQUEST_COUNTER.inc()
-            # local inference 
             messages = [{"role": "system", "content": system_message}]
             for val in history:
                 if val[0]:
@@ -77,7 +73,7 @@ def respond(
                 if val[1]:
                     messages.append({"role": "assistant", "content": val[1]})
             messages.append({"role": "user", "content": message})
-    
+
             response = ""
             for output in pipe(
                 messages,
@@ -90,6 +86,9 @@ def respond(
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
+                
+                # Check the output structure
+                print("Local Model Output:", output)  # Debugging print
                 token = output['generated_text'][-1]['content']
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
@@ -118,16 +117,24 @@ def respond(
                     return
                 
                 # Check the structure of message_chunk and extract content
-                print("Message Chunk:", message_chunk)  # Debugging print
+                print("Raw Message Chunk:", message_chunk)  # Debugging print
                 if hasattr(message_chunk, 'choices') and message_chunk.choices:
                     content = message_chunk.choices[0].delta.content
                     if content:  # Ensure content is not empty
                         response += content  # Accumulate response
-        
+                else:
+                    print("Error: Invalid message chunk structure:", message_chunk)
+                    response += "Error: Invalid response structure."
+                    yield history + [(message, response)]
+                    return
+
                 yield history + [(message, response)]  # Yield updated response
 
-
         SUCCESSFUL_REQUESTS.inc()
+    except Exception as e:
+        FAILED_REQUESTS.inc()
+        yield history + [(message, f"Error: {str(e)}")]
+
     except Exception as e:
         FAILED_REQUESTS.inc()
         yield history + [(message, f"Error: {str(e)}")]
