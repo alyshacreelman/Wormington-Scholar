@@ -72,40 +72,40 @@ def respond(
 
         response = ""
 
-        try:
-            for message_chunk in client.chat_completion(
-                messages,
-                max_tokens=max_tokens,
-                stream=True,
-                temperature=temperature,
-                top_p=top_p,
-            ):
-                # Log raw response data here to help with debugging
-                print("Raw API response:", message_chunk)  # Log the entire response
-                if not message_chunk or not hasattr(message_chunk, 'choices'):
-                    raise ValueError(f"Received malformed message_chunk: {message_chunk}")
+        # try:
+        for message_chunk in client.chat_completion(
+            messages,
+            max_tokens=max_tokens,
+            stream=True,
+            temperature=temperature,
+            top_p=top_p,
+        ):
+            # Log raw response data here to help with debugging
+            print("Raw API response:", message_chunk)  # Log the entire response
+            if not message_chunk or not hasattr(message_chunk, 'choices'):
+                raise ValueError(f"Received malformed message_chunk: {message_chunk}")
 
-                if stop_inference:
-                    response = "Inference cancelled."
-                    yield history + [(message, response)]
-                    return
+            if stop_inference:
+                response = "Inference cancelled."
+                yield history + [(message, response)]
+                return
 
-                # Check if the message_chunk has content
-                token = message_chunk.choices[0].delta.content
-                if not token:  # Handle unexpected empty tokens
-                    print(f"Warning: Empty token received for message_chunk: {message_chunk}")
-                    continue
-                response += token
-                yield history + [(message, response)]  # Yield history + new response
+            # Check if the message_chunk has content
+            token = message_chunk.choices[0].delta.content
+            if not token:  # Handle unexpected empty tokens
+                print(f"Warning: Empty token received for message_chunk: {message_chunk}")
+                continue
+            response += token
+            yield history + [(message, response)]  # Yield history + new response
 
         # except json.JSONDecodeError as e:
         #     print(f"Error parsing JSON: {e}")
         #     response = "Sorry, there was an error with the response format."
         #     yield history + [(message, response)]
-        except Exception as e:
-            print(f"Error while processing API response: {e}")
-            response = "Sorry, there was an error while generating the response."
-            yield history + [(message, response)]
+        # except Exception as e:
+        #     print(f"Error while processing API response: {e}")
+        #     response = "Sorry, there was an error while generating the response."
+        #     yield history + [(message, response)]
 
 def cancel_inference():
     global stop_inference
