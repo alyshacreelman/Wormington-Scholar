@@ -52,78 +52,98 @@ def respond(
 
     REQUEST_COUNTER.inc()
     request_timer = REQUEST_DURATION.time()
+    
+    try:
+        # Initialize history if it's None
+        if history is None:
+            history = []
 
-    # Initialize history if it's None
-    if history is None:
-        history = []
-
-    if use_local_model:
-        # Local inference (as before)
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
-
-        response = ""
-        for output in pipe(
-            messages,
-            max_new_tokens=max_tokens,
-            temperature=temperature,
-            do_sample=True,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = output['generated_text'][-1]['content']
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
-
-    else:
-        # API-based inference 
-        messages = [{"role": "system", "content": system_message}]
-        for val in history:
-            if val[0]:
-                messages.append({"role": "user", "content": val[0]})
-            if val[1]:
-                messages.append({"role": "assistant", "content": val[1]})
-        messages.append({"role": "user", "content": message})
-
-        response = ""
-
-        try:
-            for message_chunk in client.chat_completion(
+        # Count requests based on educational level
+        # This could be moved if it doesn't work
+        if "elementary" in message.lower():
+            ELEMENTARY_REQUEST_COUNTER.inc()
+        elif "middle school" in message.lower():
+            MIDDLE_REQUEST_COUNTER.inc()
+        elif "high school" in message.lower():
+            HIGH_SCHOOL_REQUEST_COUNTER.inc()
+        elif "college" in message.lower():
+            COLLEGE_REQUEST_COUNTER.inc()
+    
+        if use_local_model:
+            LOCAL_MODEL_REQUEST_COUNTER.inc()
+            # Local inference (as before)
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
+    
+            response = ""
+            for output in pipe(
                 messages,
-                max_tokens=max_tokens,
-                stream=True,
+                max_new_tokens=max_tokens,
                 temperature=temperature,
+                do_sample=True,
                 top_p=top_p,
             ):
-                # Log raw response data here to help with debugging
-                print("Raw API response:", message_chunk)  # Log the entire response
-                if not message_chunk or not hasattr(message_chunk, 'choices'):
-                    raise ValueError(f"Received malformed message_chunk: {message_chunk}")
-    
                 if stop_inference:
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
-    
-                # Check if the message_chunk has content
-                token = message_chunk.choices[0].delta.content
-                if not token:  # Handle unexpected empty tokens
-                    print(f"Warning: Empty token received for message_chunk: {message_chunk}")
-                    continue
+                token = output['generated_text'][-1]['content']
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
-
-        except JSONDecodeError:
-            print("JSONDecodeError caught and skipped.")
-            pass
+    
+        else:
+            API_REQUEST_COUNTER.inc()
+            # API-based inference 
+            messages = [{"role": "system", "content": system_message}]
+            for val in history:
+                if val[0]:
+                    messages.append({"role": "user", "content": val[0]})
+                if val[1]:
+                    messages.append({"role": "assistant", "content": val[1]})
+            messages.append({"role": "user", "content": message})
+    
+            response = ""
+    
+            try:
+                for message_chunk in client.chat_completion(
+                    messages,
+                    max_tokens=max_tokens,
+                    stream=True,
+                    temperature=temperature,
+                    top_p=top_p,
+                ):
+                    # # Log raw response data here to help with debugging
+                    # print("Raw API response:", message_chunk)  # Log the entire response
+                    if not message_chunk or not hasattr(message_chunk, 'choices'):
+                        raise ValueError(f"Received malformed message_chunk: {message_chunk}")
+        
+                    if stop_inference:
+                        response = "Inference cancelled."
+                        yield history + [(message, response)]
+                        return
+        
+                    # Check if the message_chunk has content
+                    token = message_chunk.choices[0].delta.content
+                    if not token:  # Handle unexpected empty tokens
+                        print(f"Warning: Empty token received for message_chunk: {message_chunk}")
+                        continue
+                    response += token
+                    yield history + [(message, response)]  # Yield history + new response
+    
+            except JSONDecodeError:
+                print("JSONDecodeError caught and skipped.")
+                pass
+        SUCCESSFUL_REQUESTS.inc()
+    except Exception as e:
+        FAILED_REQUESTS.inc()
+        yield history + [(message, f"Error: {str(e)}")]
+    finally:
+        request_timer.observe_duration()
 
         # except json.JSONDecodeError as e:
         #     print(f"Error parsing JSON: {e}")
