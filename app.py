@@ -6,7 +6,6 @@ import os
 import sys
 from prometheus_client import start_http_server, Counter, Summary, Gauge
 import resource
-import json
 
 token = os.environ.get('TOKEN')
 
