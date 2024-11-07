@@ -35,7 +35,7 @@ def respond(
         history = []
 
     if use_local_model:
-        # local inference 
+        # Local inference (as before)
         messages = [{"role": "system", "content": system_message}]
         for val in history:
             if val[0]:
@@ -72,7 +72,6 @@ def respond(
 
         response = ""
 
-        # Log the raw API response before processing
         try:
             for message_chunk in client.chat_completion(
                 messages,
@@ -81,18 +80,28 @@ def respond(
                 temperature=temperature,
                 top_p=top_p,
             ):
-                # Log raw response (or print to console)
-                print("Raw API response:", message_chunk)  # For debugging
+                # Log raw response data here to help with debugging
+                print("Raw API response:", message_chunk)  # Log the entire response
+                if not message_chunk or not hasattr(message_chunk, 'choices'):
+                    raise ValueError(f"Received malformed message_chunk: {message_chunk}")
 
                 if stop_inference:
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
 
-                # Process token from the response
+                # Check if the message_chunk has content
                 token = message_chunk.choices[0].delta.content
+                if not token:  # Handle unexpected empty tokens
+                    print(f"Warning: Empty token received for message_chunk: {message_chunk}")
+                    continue
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
+
+        except json.JSONDecodeError as e:
+            print(f"Error parsing JSON: {e}")
+            response = "Sorry, there was an error with the response format."
+            yield history + [(message, response)]
         except Exception as e:
             print(f"Error while processing API response: {e}")
             response = "Sorry, there was an error while generating the response."
