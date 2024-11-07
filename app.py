@@ -96,7 +96,7 @@ def respond(
 
         else:
             API_REQUEST_COUNTER.inc()
-            # API-based inference 
+            response = ""  # Initialize response outside the loop
             messages = [{"role": "system", "content": system_message}]
             for val in history:
                 if val[0]:
@@ -104,8 +104,7 @@ def respond(
                 if val[1]:
                     messages.append({"role": "assistant", "content": val[1]})
             messages.append({"role": "user", "content": message})
-
-            response = ""
+        
             for message_chunk in client.chat_completion(
                 messages,
                 max_tokens=max_tokens,
@@ -117,13 +116,16 @@ def respond(
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
-                    
-                # Printing out the message before processing
-                print("Message Chunk:", message_chunk)
                 
-                token = message_chunk.choices[0].delta.content
-                response += token
-                yield history + [(message, response)]  # Yield history + new response
+                # Check the structure of message_chunk and extract content
+                print("Message Chunk:", message_chunk)  # Debugging print
+                if hasattr(message_chunk, 'choices') and message_chunk.choices:
+                    content = message_chunk.choices[0].delta.content
+                    if content:  # Ensure content is not empty
+                        response += content  # Accumulate response
+        
+                yield history + [(message, response)]  # Yield updated response
+
 
         SUCCESSFUL_REQUESTS.inc()
     except Exception as e:
