@@ -71,21 +71,32 @@ def respond(
         messages.append({"role": "user", "content": message})
 
         response = ""
-        for message_chunk in client.chat_completion(
-            messages,
-            max_tokens=max_tokens,
-            stream=True,
-            temperature=temperature,
-            top_p=top_p,
-        ):
-            if stop_inference:
-                response = "Inference cancelled."
-                yield history + [(message, response)]
-                return
-            token = message_chunk.choices[0].delta.content
-            response += token
-            yield history + [(message, response)]  # Yield history + new response
 
+        # Log the raw API response before processing
+        try:
+            for message_chunk in client.chat_completion(
+                messages,
+                max_tokens=max_tokens,
+                stream=True,
+                temperature=temperature,
+                top_p=top_p,
+            ):
+                # Log raw response (or print to console)
+                print("Raw API response:", message_chunk)  # For debugging
+
+                if stop_inference:
+                    response = "Inference cancelled."
+                    yield history + [(message, response)]
+                    return
+
+                # Process token from the response
+                token = message_chunk.choices[0].delta.content
+                response += token
+                yield history + [(message, response)]  # Yield history + new response
+        except Exception as e:
+            print(f"Error while processing API response: {e}")
+            response = "Sorry, there was an error while generating the response."
+            yield history + [(message, response)]
 
 def cancel_inference():
     global stop_inference
