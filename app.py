@@ -9,6 +9,20 @@ import resource
 
 token = os.environ.get('TOKEN')
 
+
+# Prometheus metrics
+REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
+EM_REQUEST_COUNTER = Counter('em_requests_total', 'Total number of elementary school level requests')
+MD_REQUEST_COUNTER = Counter('md_requests_total', 'Total number of middle school level requests')
+HS_REQUEST_COUNTER = Counter('hs_requests_total', 'Total number of high school level requests')
+CL_REQUEST_COUNTER = Counter('cl_requests_total', 'Total number of college level requests')
+SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
+FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
+REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
+API_REQUEST_COUNTER = Counter('app_api_requests_total', 'Total number of API requests')
+LOCAL_MODEL_REQUEST_COUNTER = Counter('app_local_model_requests_total', 'Total number of local model requests')
+MEMORY_USAGE_GAUGE = Gauge('app_memory_usage_bytes', 'Current memory usage in bytes')
+
 # Inference client setup with token from environment
 # token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
@@ -17,6 +31,11 @@ pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dty
 
 # Global flag to handle cancellation
 stop_inference = False
+
+def update_memory_usage():
+    # Get the current process memory usage
+    memory_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # Memory in kilobytes
+    MEMORY_USAGE_GAUGE.set(memory_usage * 1024)  # Convert to bytes and update the gauge
 
 def respond(
     message,
@@ -29,6 +48,9 @@ def respond(
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
+
+    REQUEST_COUNTER.inc()
+    request_timer = REQUEST_DURATION.time()
 
     # Initialize history if it's None
     if history is None:
@@ -72,34 +94,34 @@ def respond(
 
         response = ""
 
-        try:
-            for message_chunk in client.chat_completion(
-                messages,
-                max_tokens=max_tokens,
-                stream=True,
-                temperature=temperature,
-                top_p=top_p,
-            ):
-                # Log raw response data here to help with debugging
-                print("Raw API response:", message_chunk)  # Log the entire response
-                if not message_chunk or not hasattr(message_chunk, 'choices'):
-                    raise ValueError(f"Received malformed message_chunk: {message_chunk}")
-    
-                if stop_inference:
-                    response = "Inference cancelled."
-                    yield history + [(message, response)]
-                    return
-    
-                # Check if the message_chunk has content
-                token = message_chunk.choices[0].delta.content
-                if not token:  # Handle unexpected empty tokens
-                    print(f"Warning: Empty token received for message_chunk: {message_chunk}")
-                    continue
-                response += token
-                yield history + [(message, response)]  # Yield history + new response
+        # try:
+        for message_chunk in client.chat_completion(
+            messages,
+            max_tokens=max_tokens,
+            stream=True,
+            temperature=temperature,
+            top_p=top_p,
+        ):
+            # Log raw response data here to help with debugging
+            print("Raw API response:", message_chunk)  # Log the entire response
+            if not message_chunk or not hasattr(message_chunk, 'choices'):
+                raise ValueError(f"Received malformed message_chunk: {message_chunk}")
 
-        except Exception as e:
-            pass
+            if stop_inference:
+                response = "Inference cancelled."
+                yield history + [(message, response)]
+                return
+
+            # Check if the message_chunk has content
+            token = message_chunk.choices[0].delta.content
+            if not token:  # Handle unexpected empty tokens
+                print(f"Warning: Empty token received for message_chunk: {message_chunk}")
+                continue
+            response += token
+            yield history + [(message, response)]  # Yield history + new response
+
+        # except Exception as e:
+        #     pass
 
         # except json.JSONDecodeError as e:
         #     print(f"Error parsing JSON: {e}")
