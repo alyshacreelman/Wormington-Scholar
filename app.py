@@ -266,4 +266,5 @@ with gr.Blocks(css=custom_css) as demo:
                          outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
 
 if __name__ == "__main__":
-    demo.launch(share=False)
+    start_http_server(8000)  # Expose metrics on port 8000
+    demo.launch(share=False)  # Launch Gradio app on port 7860
