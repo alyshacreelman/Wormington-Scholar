@@ -93,42 +93,42 @@ def respond(
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
 
-        else:
-            API_REQUEST_COUNTER.inc()
-            response = ""  # Initialize response outside the loop
-            messages = [{"role": "system", "content": system_message}]
-            for val in history:
-                if val[0]:
-                    messages.append({"role": "user", "content": val[0]})
-                if val[1]:
-                    messages.append({"role": "assistant", "content": val[1]})
-            messages.append({"role": "user", "content": message})
+    else:
+        API_REQUEST_COUNTER.inc()
+        response = ""  # Initialize response outside the loop
+        messages = [{"role": "system", "content": system_message}]
+        for val in history:
+            if val[0]:
+                messages.append({"role": "user", "content": val[0]})
+            if val[1]:
+                messages.append({"role": "assistant", "content": val[1]})
+        messages.append({"role": "user", "content": message})
         
-            for message_chunk in client.chat_completion(
-                messages,
-                max_tokens=max_tokens,
-                stream=True,
-                temperature=temperature,
-                top_p=top_p,
-            ):
-                if stop_inference:
-                    response = "Inference cancelled."
-                    yield history + [(message, response)]
-                    return
-                
-                # Check the structure of message_chunk and extract content
-                print("Raw Message Chunk:", message_chunk)  # Debugging print
-                if hasattr(message_chunk, 'choices') and message_chunk.choices:
-                    content = message_chunk.choices[0].delta.content
-                    if content:  # Ensure content is not empty
-                        response += content  # Accumulate response
-                else:
-                    print("Error: Invalid message chunk structure:", message_chunk)
-                    response += "Error: Invalid response structure."
-                    yield history + [(message, response)]
-                    return
+        # Collect all chunks
+        for message_chunk in client.chat_completion(
+            messages,
+            max_tokens=max_tokens,
+            stream=True,
+            temperature=temperature,
+            top_p=top_p,
+        ):
+            if stop_inference:
+                response = "Inference cancelled."
+                break  # Exit the loop on cancellation
+            
+            # Check the structure of message_chunk and extract content
+            print("Raw Message Chunk:", message_chunk)  # Debugging print
+            if hasattr(message_chunk, 'choices') and message_chunk.choices:
+                content = message_chunk.choices[0].delta.content
+                if content:  # Ensure content is not empty
+                    response += content  # Accumulate response
+            else:
+                print("Error: Invalid message chunk structure:", message_chunk)
+                response += "Error: Invalid response structure."
+                break  # Exit the loop if the structure is invalid
+    
+        yield history + [(message, response)]  # Yield only once at the end
 
-                yield history + [(message, response)]  # Yield updated response
 
         SUCCESSFUL_REQUESTS.inc()
     except Exception as e:
