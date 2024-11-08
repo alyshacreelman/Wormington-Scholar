@@ -113,7 +113,7 @@ def respond(
                 for message_chunk in client.chat_completion(
                     messages,
                     max_tokens=max_tokens,
-                    stream=True,
+                    stream=False,
                     temperature=temperature,
                     top_p=top_p,
                 ):
