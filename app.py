@@ -61,13 +61,13 @@ def respond(
         # Count requests based on educational level
         # This could be moved if it doesn't work
         if "elementary" in system_message.lower():
-            EM_REQUEST_COUNTER.inc()
+            ELEMENTARY_REQUEST_COUNTER.inc()
         elif "middle school" in system_message.lower():
-            MD_REQUEST_COUNTER.inc()
+            MIDDLE_REQUEST_COUNTER.inc()
         elif "high school" in system_message.lower():
-            HS_REQUEST_COUNTER.inc()
+            HIGH_SCHOOL_REQUEST_COUNTER.inc()
         elif "college" in system_message.lower():
-            CL_REQUEST_COUNTER.inc()
+            COLLEGE_REQUEST_COUNTER.inc()
     
         if use_local_model:
             LOCAL_MODEL_REQUEST_COUNTER.inc()
@@ -113,7 +113,7 @@ def respond(
                 for message_chunk in client.chat_completion(
                     messages,
                     max_tokens=max_tokens,
-                    stream=False,
+                    stream=True,
                     temperature=temperature,
                     top_p=top_p,
                 ):
