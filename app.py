@@ -60,13 +60,13 @@ def respond(
 
         # Count requests based on educational level
         # This could be moved if it doesn't work
-        if "elementary" in system_message.lower():
+        if "elementary" in message.lower():
             ELEMENTARY_REQUEST_COUNTER.inc()
-        elif "middle school" in system_message.lower():
+        elif "middle school" in message.lower():
             MIDDLE_REQUEST_COUNTER.inc()
-        elif "high school" in system_message.lower():
+        elif "high school" in message.lower():
             HIGH_SCHOOL_REQUEST_COUNTER.inc()
-        elif "college" in system_message.lower():
+        elif "college" in message.lower():
             COLLEGE_REQUEST_COUNTER.inc()
     
         if use_local_model:
