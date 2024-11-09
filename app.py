@@ -142,6 +142,7 @@ def respond(
     except Exception as e:
         FAILED_REQUESTS.inc()
         yield history + [(message, f"Error: {str(e)}")]
+    update_memory_usage()
     # finally:
     #     request_timer.observe_duration()
 
