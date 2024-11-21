@@ -12,31 +12,31 @@ token = os.environ.get('TOKEN')
 
 
 # Prometheus metrics
-REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
-EM_REQUEST_COUNTER = Counter('em_requests_total', 'Total number of elementary school level requests')
-MD_REQUEST_COUNTER = Counter('md_requests_total', 'Total number of middle school level requests')
-HS_REQUEST_COUNTER = Counter('hs_requests_total', 'Total number of high school level requests')
-CL_REQUEST_COUNTER = Counter('cl_requests_total', 'Total number of college level requests')
-SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
-FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
-# REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
-API_REQUEST_COUNTER = Counter('app_api_requests_total', 'Total number of API requests')
-LOCAL_MODEL_REQUEST_COUNTER = Counter('app_local_model_requests_total', 'Total number of local model requests')
-MEMORY_USAGE_GAUGE = Gauge('app_memory_usage_bytes', 'Current memory usage in bytes')
+# REQUEST_COUNTER = Counter('app_requests_total', 'Total number of requests')
+# EM_REQUEST_COUNTER = Counter('em_requests_total', 'Total number of elementary school level requests')
+# MD_REQUEST_COUNTER = Counter('md_requests_total', 'Total number of middle school level requests')
+# HS_REQUEST_COUNTER = Counter('hs_requests_total', 'Total number of high school level requests')
+# CL_REQUEST_COUNTER = Counter('cl_requests_total', 'Total number of college level requests')
+# SUCCESSFUL_REQUESTS = Counter('app_successful_requests_total', 'Total number of successful requests')
+# FAILED_REQUESTS = Counter('app_failed_requests_total', 'Total number of failed requests')
+# # REQUEST_DURATION = Summary('app_request_duration_seconds', 'Time spent processing request')
+# API_REQUEST_COUNTER = Counter('app_api_requests_total', 'Total number of API requests')
+# LOCAL_MODEL_REQUEST_COUNTER = Counter('app_local_model_requests_total', 'Total number of local model requests')
+# MEMORY_USAGE_GAUGE = Gauge('app_memory_usage_bytes', 'Current memory usage in bytes')
 
 # Inference client setup with token from environment
 # token = os.getenv('HF_TOKEN')
 client = InferenceClient(model="HuggingFaceH4/zephyr-7b-alpha", token=token)
 # pipe = pipeline("text-generation", "TinyLlama/TinyLlama_v1.1", torch_dtype=torch.bfloat16, device_map="auto")
-pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
+# pipe = pipeline("text-generation", "microsoft/Phi-3-mini-4k-instruct", torch_dtype=torch.bfloat16, device_map="auto")
 
 # Global flag to handle cancellation
 stop_inference = False
 
-def update_memory_usage():
-    # Get the current process memory usage
-    memory_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # Memory in kilobytes
-    MEMORY_USAGE_GAUGE.set(memory_usage * 1024)  # Convert to bytes and update the gauge
+# def update_memory_usage():
+#     # Get the current process memory usage
+#     memory_usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # Memory in kilobytes
+#     MEMORY_USAGE_GAUGE.set(memory_usage * 1024)  # Convert to bytes and update the gauge
 
 def respond(
     message,
@@ -50,7 +50,7 @@ def respond(
     global stop_inference
     stop_inference = False  # Reset cancellation flag
 
-    REQUEST_COUNTER.inc()
+    # REQUEST_COUNTER.inc()
     # request_timer = REQUEST_DURATION.time()
     
     try:
@@ -58,91 +58,91 @@ def respond(
         if history is None:
             history = []
 
-        # Count requests based on educational level
-        # This could be moved if it doesn't work
-        if "elementary" in system_message.lower():
-            EM_REQUEST_COUNTER.inc()
-        elif "middle school" in system_message.lower():
-            MD_REQUEST_COUNTER.inc()
-        elif "high school" in system_message.lower():
-            HS_REQUEST_COUNTER.inc()
-        elif "college" in system_message.lower():
-            CL_REQUEST_COUNTER.inc()
+        # # Count requests based on educational level
+        # # This could be moved if it doesn't work
+        # if "elementary" in system_message.lower():
+        #     EM_REQUEST_COUNTER.inc()
+        # elif "middle school" in system_message.lower():
+        #     MD_REQUEST_COUNTER.inc()
+        # elif "high school" in system_message.lower():
+        #     HS_REQUEST_COUNTER.inc()
+        # elif "college" in system_message.lower():
+        #     CL_REQUEST_COUNTER.inc()
     
-        if use_local_model:
-            LOCAL_MODEL_REQUEST_COUNTER.inc()
-            # Local inference (as before)
-            messages = [{"role": "system", "content": system_message}]
-            for val in history:
-                if val[0]:
-                    messages.append({"role": "user", "content": val[0]})
-                if val[1]:
-                    messages.append({"role": "assistant", "content": val[1]})
-            messages.append({"role": "user", "content": message})
+        # if use_local_model:
+        #     LOCAL_MODEL_REQUEST_COUNTER.inc()
+        #     # Local inference (as before)
+        #     messages = [{"role": "system", "content": system_message}]
+        #     for val in history:
+        #         if val[0]:
+        #             messages.append({"role": "user", "content": val[0]})
+        #         if val[1]:
+        #             messages.append({"role": "assistant", "content": val[1]})
+        #     messages.append({"role": "user", "content": message})
     
-            response = ""
-            for output in pipe(
+        #     response = ""
+        #     for output in pipe(
+        #         messages,
+        #         max_new_tokens=max_tokens,
+        #         temperature=temperature,
+        #         do_sample=True,
+        #         top_p=top_p,
+        #     ):
+        #         if stop_inference:
+        #             response = "Inference cancelled."
+        #             yield history + [(message, response)]
+        #             return
+        #         token = output['generated_text'][-1]['content']
+        #         response += token
+        #         yield history + [(message, response)]  # Yield history + new response
+    
+        #else:
+        API_REQUEST_COUNTER.inc()
+        # API-based inference 
+        messages = [{"role": "system", "content": system_message}]
+        for val in history:
+            if val[0]:
+                messages.append({"role": "user", "content": val[0]})
+            if val[1]:
+                messages.append({"role": "assistant", "content": val[1]})
+        messages.append({"role": "user", "content": message})
+
+        response = ""
+
+        try:
+            for message_chunk in client.chat_completion(
                 messages,
-                max_new_tokens=max_tokens,
+                max_tokens=max_tokens,
+                stream=True,
                 temperature=temperature,
-                do_sample=True,
                 top_p=top_p,
             ):
+                # # Log raw response data here to help with debugging
+                # print("Raw API response:", message_chunk)  # Log the entire response
+                if not message_chunk or not hasattr(message_chunk, 'choices'):
+                    raise ValueError(f"Received malformed message_chunk: {message_chunk}")
+    
                 if stop_inference:
                     response = "Inference cancelled."
                     yield history + [(message, response)]
                     return
-                token = output['generated_text'][-1]['content']
+    
+                # Check if the message_chunk has content
+                token = message_chunk.choices[0].delta.content
+                if not token:  # Handle unexpected empty tokens
+                    print(f"Warning: Empty token received for message_chunk: {message_chunk}")
+                    continue
                 response += token
                 yield history + [(message, response)]  # Yield history + new response
-    
-        else:
-            API_REQUEST_COUNTER.inc()
-            # API-based inference 
-            messages = [{"role": "system", "content": system_message}]
-            for val in history:
-                if val[0]:
-                    messages.append({"role": "user", "content": val[0]})
-                if val[1]:
-                    messages.append({"role": "assistant", "content": val[1]})
-            messages.append({"role": "user", "content": message})
-    
-            response = ""
-    
-            try:
-                for message_chunk in client.chat_completion(
-                    messages,
-                    max_tokens=max_tokens,
-                    stream=True,
-                    temperature=temperature,
-                    top_p=top_p,
-                ):
-                    # # Log raw response data here to help with debugging
-                    # print("Raw API response:", message_chunk)  # Log the entire response
-                    if not message_chunk or not hasattr(message_chunk, 'choices'):
-                        raise ValueError(f"Received malformed message_chunk: {message_chunk}")
-        
-                    if stop_inference:
-                        response = "Inference cancelled."
-                        yield history + [(message, response)]
-                        return
-        
-                    # Check if the message_chunk has content
-                    token = message_chunk.choices[0].delta.content
-                    if not token:  # Handle unexpected empty tokens
-                        print(f"Warning: Empty token received for message_chunk: {message_chunk}")
-                        continue
-                    response += token
-                    yield history + [(message, response)]  # Yield history + new response
-    
-            except JSONDecodeError:
-                print("JSONDecodeError caught and skipped.")
-                pass
-        SUCCESSFUL_REQUESTS.inc()
+
+        except JSONDecodeError:
+            print("JSONDecodeError caught and skipped.")
+            pass
+    # SUCCESSFUL_REQUESTS.inc()
     except Exception as e:
-        FAILED_REQUESTS.inc()
+        # FAILED_REQUESTS.inc()
         yield history + [(message, f"Error: {str(e)}")]
-    update_memory_usage()
+    # update_memory_usage()
     # finally:
     #     request_timer.observe_duration()
 
@@ -267,5 +267,5 @@ with gr.Blocks(css=custom_css) as demo:
                          outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
 
 if __name__ == "__main__":
-    start_http_server(8000)  # Expose metrics on port 8000
+    #start_http_server(8000)  # Expose metrics on port 8000
     demo.launch(share=False)  # Launch Gradio app on port 7860
