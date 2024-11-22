@@ -97,7 +97,7 @@ def respond(
         #         yield history + [(message, response)]  # Yield history + new response
     
         #else:
-        API_REQUEST_COUNTER.inc()
+        # API_REQUEST_COUNTER.inc()
         # API-based inference 
         messages = [{"role": "system", "content": system_message}]
         for val in history:
