@@ -44,8 +44,8 @@ def respond(
     system_message="You are a friendly Chatbot.",
     max_tokens=512,
     temperature=1.5,
-    top_p=0.95,
-    use_local_model=False,
+    top_p=0.95
+    # use_local_model=False
 ):
     global stop_inference
     stop_inference = False  # Reset cancellation flag
@@ -257,7 +257,7 @@ with gr.Blocks(css=custom_css) as demo:
     restart_button = gr.Button("Restart Chatbot", variant="secondary")
 
     # Adjusted to ensure history is maintained and passed correctly
-    user_input.submit(respond, [user_input, chat_history, system_message_display, max_tokens, temperature, top_p, use_local_model], chat_history)
+    user_input.submit(respond, [user_input, chat_history, system_message_display, max_tokens, temperature, top_p], chat_history)
 
     cancel_button.click(cancel_inference)
 
