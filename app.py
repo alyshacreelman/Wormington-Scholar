@@ -242,7 +242,7 @@ with gr.Blocks(css=custom_css) as demo:
                          outputs=[system_message_display, elementary_button, middle_button, high_button, college_button])
 
     with gr.Row():  
-        use_local_model = gr.Checkbox(label="Use Local Model", value=False)
+        #use_local_model = gr.Checkbox(label="Use Local Model", value=False)
 
     with gr.Row():
         max_tokens = gr.Slider(minimum=1, maximum=2048, value=512, step=1, label="Max new tokens")
