@@ -1,11 +1,11 @@
 import gradio as gr 
 from huggingface_hub import InferenceClient
-import torch
-from transformers import pipeline
+#import torch
+#from transformers import pipeline
 import os
 import sys
-from prometheus_client import start_http_server, Counter, Summary, Gauge
-import resource
+#from prometheus_client import start_http_server, Counter, Summary, Gauge
+#import resource
 from json import JSONDecodeError
 
 token = os.environ.get('TOKEN')
