@@ -1,0 +1,45 @@
+name: Deploy Wormington Scholar App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Set up Azure CLI
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Create Container App Environment
+      run: |
+        az containerapp env create \
+          --name wormington-scholar-environment \
+          --resource-group wormington-scholar-resource \
+          --location eastus
+
+    - name: Create Container App
+      run: |
+        az containerapp create \
+          --name wormington-scholar-app \
+          --resource-group wormington-scholar-resource \
+          --environment wormington-scholar-environment \
+          --image alyshacreelman/wormington-scholar-cs4 \
+          --ingress external \
+          --target-port 7860 \
+          --env-vars TOKEN=${{ secrets.HF_TOKEN }}
+
+    - name: Get App FQDN
+      run: |
+        az containerapp show \
+          --name wormington-scholar-app \
+          --resource-group wormington-scholar-resource \
+          --query properties.configuration.ingress.fqdn
