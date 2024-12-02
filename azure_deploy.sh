@@ -6,7 +6,7 @@ az containerapp create \
 --name wormington-scholar-app \
 --resource-group wormington-scholar-resource \
 --environment wormington-scholar-environment \
---image alyshacreelman/wormington-scholar-cs4 \
+--image alyshacreelman/wormington-cs4 \
 --ingress external \
 --target-port 7860 \
 --env-vars TOKEN=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
